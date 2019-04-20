@@ -48,7 +48,7 @@ class Config(object):
         drop_cols=self.from_json(default_file)
 
         if "drop_cols" not in drop_cols.keys() or len(drop_cols["drop_cols"])<=0:
-            return []
+            self.drop_cols=[]
         else:
             self.drop_cols=drop_cols["drop_cols"]
 
