@@ -4,7 +4,6 @@
  FileName    : Config_1.py
  Software: PyCharm
 """
-
 import json
 
 class Config(object):
@@ -26,14 +25,14 @@ class Config(object):
         self.max_gradient_norm=5
         self.optimizer="adam"
         self.batch_size=128
-        self.num_epochs=10
-        self.log_dir='/log'
+        self.num_epochs=50
+        self.log_dir='log'
         self.train_ratio=0.8
         self.report_frequency=50
-        self.plot_frequency=5
+        self.plot_frequency=20
         self.seed=42
-        self.inp_att_enabled=True
-        self.temporal_att_enabled=True
+        self.inp_att_enabled=False
+        self.temporal_att_enabled=False
 
 
     def get_drop_cols(self,default_file):
@@ -51,7 +50,6 @@ class Config(object):
             self.drop_cols=[]
         else:
             self.drop_cols=drop_cols["drop_cols"]
-
 
     def get_target_cols(self,default_file):
         """get target cols
@@ -115,13 +113,27 @@ class Config(object):
         with open(path,'w') as f:
             json.dump(json_data,f)
 
+    def config(self,default_file):
+        """mainly to run above functions
+
+        Args:
+            default_file(str):load file from deault_file
+
+        Returns:
+            class object
+
+        """
+        self.get_data_path(default_file)
+        self.get_drop_cols(default_file)
+        self.get_target_cols(default_file)
 #test
 if __name__=='__main__':
 
     config=Config()
-    config.get_drop_cols("conf/SML2010.json")
-    config.get_target_cols("conf/SML2010.json")
-    config.get_data_path("conf/SML2010.json")
+    # config.get_drop_cols("conf/SML2010.json")
+    # config.get_target_cols("conf/SML2010.json")
+    # config.get_data_path("conf/SML2010.json")
+    config.config("conf/SML2010.json")
     print(config.drop_cols)
     print(config.target_cols)
     print(config.data_paths)
