@@ -6,43 +6,75 @@
 """
 import pandas as pd
 import os
+import logging
+import time
+from config import *
+import numpy as np
 
 #对原始文件进行一个预处理
-data=pd.read_csv("data/NEW-DATA-2.T15.csv")
+def data_loader(filename):
+    logging.info("start run the code")
 
-columns=data.columns
-vals=data.values
+    start=time.time()
+    data=pd.read_csv(filename)
 
-#获取csv文件的特征列
-columns=columns.values
-columns=str(columns).split(' ')
-columns=[col for col in columns if col not in ['[','\'#','',']']]
-columns[-1]=columns[-1].strip('\]\'')
+    columns=data.columns
+    vals=data.values
 
-#获取对应特征的值
-print(vals)
+    #获取csv文件的特征列
+    columns=columns.values
+    columns=str(columns).split(' ')
+    columns=[col for col in columns if col not in ['[','\'#','',']']]
+    columns[-1]=columns[-1].strip('\]\'')
 
-df=pd.DataFrame(columns=columns)
-dp_data=[[] for _ in range(len(columns))]
+    #创建一个数据框对象，用于存储数据
+    df=pd.DataFrame(columns=columns)
+    dp_data=[[] for _ in range(len(columns))]
 
-for i in range(vals.shape[0]):
-    print([val for val in str(vals[i]).strip('\"\']').split(' ') if val not in ['[','\'#','','\']','\"']])
-    for col_index in range(len(columns)):
-            dp_data[col_index].append([val for val in str(vals[i]).strip('\"\']').split(' ') if val not in ['[','\'#','','\']','\"']][col_index])
+    for i in range(vals.shape[0]):
+        print([val for val in str(vals[i]).strip('\"\']').split(' ') if val not in ['[','\'#','','\']','\"']])
+        for col_index in range(len(columns)):
+                dp_data[col_index].append([val for val in str(vals[i]).strip('\"\']').split(' ') if val not in ['[','\'#','','\']','\"']][col_index])
 
-    print(dp_data)
+    for i in range(len(columns)):
+        df[columns[i]]=dp_data[i]
 
-for i in range(len(columns)):
-    df[columns[i]]=dp_data[i]
+    df[columns[0]]=df[columns[0]].apply(lambda x:x.lstrip('\''))
 
-df[columns[0]]=df[columns[0]].apply(lambda x:x.lstrip('\''))
+    PATH='data/NEW-DATA-1.csv'
+    if os.path.exists(PATH):
+        os.remove(PATH)
+
+    df.to_csv(PATH,index=False,encoding='utf-8')
+
+    end=time.time()
+    #代码运行时间
+    print("it total costs {:.8f} sec".format(end-start))
+
+def data_batch_normal(filename,config=Config()):
+    """mainly batch normalization data of filename
+    Args:
+       filename
+
+    Returns:
+      new file
+    """
+    data=pd.read_csv(filename)
+    config.config("conf/NASDAQ100.json")
 
 
-PATH='NEW-DATA-2.csv'
-if os.path.exists(PATH):
-    os.remove(PATH)
+    for i in data.columns:
+            mean_value=np.mean(data[i].values)
+            std_value=np.std(data[i].values)
+            data[i]=(data[i].values-mean_value)/std_value
 
-df.to_csv(PATH,index=False,encoding='utf-8')
+    if os.path.exists("data/nasdaq100/small/nasdaq100_padding_1.csv"):
+        os.remove("data/nasdaq100/small/nasdaq100_padding_1.csv")
+    data.to_csv("data/nasdaq100/small/nasdaq100_padding_1.csv",index=False)
+
+if __name__=="__main__":
+    data_batch_normal("data/nasdaq100/small/nasdaq100_padding.csv")
+
 
 
 
