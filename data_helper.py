@@ -64,6 +64,7 @@ def data_batch_normal(filename,config=Config()):
 
 
     for i in data.columns:
+        if i not in ["NDX"]:
             mean_value=np.mean(data[i].values)
             std_value=np.std(data[i].values)
             data[i]=(data[i].values-mean_value)/std_value
@@ -72,14 +73,22 @@ def data_batch_normal(filename,config=Config()):
         os.remove("data/nasdaq100/small/nasdaq100_padding_1.csv")
     data.to_csv("data/nasdaq100/small/nasdaq100_padding_1.csv",index=False)
 
+def get_landsensor_set(filename):
+    df=pd.read_excel(filename,encoding="utf_8_sig")
+    for i in ['id（记录id）','create_date（记录插入时间）','equid（网关地址）','land_ec（土壤电导率 S/m）']:
+        df.pop(i)
+    df=df.rename(columns={"air_temperature（空气温度 摄氏度）":"air_temperature","air_humidity（空气湿度 %RH）":"air_humidity",
+                          "land_temperature（土壤温度 摄氏度）":"land_temperature","land_humidity（土壤湿度 %RH）":"land_humidity",
+                          "land_ph（土壤酸碱度）":"land_ph","light（光照度 Lux）":"light"})
+    df.fillna(0.0)
+    print(df)
+    print(df.columns)
+
+    df.to_csv("data/landsensor.csv",index=False)
+
 if __name__=="__main__":
-    data_batch_normal("data/nasdaq100/small/nasdaq100_padding.csv")
-
-
-
-
-
-
+    # data_batch_normal("data/nasdaq100/small/nasdaq100_padding.csv")
+    get_landsensor_set("data/jd_sensor_data.xls")
 
 
 
