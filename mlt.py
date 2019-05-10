@@ -9,6 +9,8 @@ import seaborn as sns
 import pandas as pd
 
 #TODO:主要是画图代码
+
+#箱型线图
 def plot_boxplot(xlabel,ylabel,title,xticklabels):
     fig = plt.figure(figsize=(9,7))  # 创建画布
     ax = plt.subplot()  # 创建作图区域
